@@ -69,8 +69,12 @@ let currentAccount;
 
 //Display transaction history Function
 //Using arrays
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = '';
+
+  //If sort = true, array will be sorted
+  //Else transactions will be traditionally shown
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
 
   movements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
@@ -215,6 +219,15 @@ btnClose.addEventListener('click', function (e) {
     //Empty fields
     inputCloseUsername.value = inputClosePin.value = '';
   }
+});
+
+//Sorting indication function
+//Indicates if array is sorted or not
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
 
 /*----------------------------------------------------------------*/
