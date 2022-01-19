@@ -5,6 +5,7 @@
 // BANKIST APP
 
 // Data
+// Demo Accounts
 const account1 = {
   owner: 'Jonas Schmedtmann',
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
@@ -66,6 +67,8 @@ let currentAccount;
 
 /*---------------------------------------------------------------*/
 
+//Display transaction history Function
+//Using arrays
 const displayMovements = function (movements) {
   containerMovements.innerHTML = '';
 
@@ -81,12 +84,14 @@ const displayMovements = function (movements) {
   });
 };
 
+//Display balance Function
 //=> means return
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${balance} EUR`;
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${acc.balance}€`;
 };
 
+//Calculate and Display balances Function
 const calcDisplaySummary = function (acc) {
   const incomes = acc.movements
     .filter(mov => mov > 0)
@@ -105,6 +110,7 @@ const calcDisplaySummary = function (acc) {
   labelSumInterest.textContent = `${interest}€`;
 };
 
+//Username creator
 const createUsername = function (accs) {
   accs.forEach(function (acc) {
     acc.username = acc.owner
@@ -116,6 +122,17 @@ const createUsername = function (accs) {
 };
 createUsername(accounts);
 
+//UI Updater
+const updateUI = function (acc) {
+  //Display movements
+  displayMovements(acc.movements);
+  //Display balance
+  calcDisplayBalance(acc);
+  //Display summary
+  calcDisplaySummary(acc);
+};
+
+//Login Function
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
 
@@ -135,12 +152,68 @@ btnLogin.addEventListener('click', function (e) {
     //Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
-    //Display movements
-    displayMovements(currentAccount.movements);
-    //Display balance
-    calcDisplayBalance(currentAccount.movements);
-    //Display summary
-    calcDisplaySummary(currentAccount);
+
+    //Updates UI after every transfer
+    updateUI(currentAccount);
+  }
+});
+
+//Transfer Function
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+  inputTransferAmount.value = inputTransferTo.value = '';
+
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    currentAccount.balance >= amount &&
+    receiverAcc?.username !== currentAccount.username
+  ) {
+    //Transfer data between arrays
+    //console.log('Transfer valid');
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+    //console.log('Transfer successfully complete!');
+    updateUI(currentAccount);
+  }
+});
+
+//Loan Function
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    currentAccount.movements.push(amount);
+    updateUI(currentAccount);
+  }
+
+  inputLoanAmount.value = '';
+});
+
+//Closing(Deleting) an account Function
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    //Find username within the accounts and return it's index and remove the user using the splice method at that index
+    //console.log('Deletion in progress...');
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    accounts.splice(index, 1);
+
+    //After deletion, hide UI
+    containerApp.style.opacity = 0;
+
+    //Empty fields
+    inputCloseUsername.value = inputClosePin.value = '';
   }
 });
 
