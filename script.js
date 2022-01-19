@@ -76,7 +76,7 @@ const displayMovements = function (movements, sort = false) {
   //Else transactions will be traditionally shown
   const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
 
-  movements.forEach(function (mov, i) {
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     //Template string/literal
@@ -229,6 +229,17 @@ btnSort.addEventListener('click', function (e) {
   displayMovements(currentAccount.movements, !sorted);
   sorted = !sorted;
 });
+
+//labelBalance.addEventListener('click', function () {
+//  const movementsUI = Array.from(
+//    document.querySelectorAll('.movements_value'),
+//    el => Number(el.textContent.replace('€', ''))
+//  );
+//
+//  console.log(movementsUI);
+//
+//  const movementsUI2 = [...document.querySelectorAll('.movements_value')];
+//});
 
 /*----------------------------------------------------------------*/
 //Function calls For Testing
