@@ -87,19 +87,19 @@ const calcDisplayBalance = function (movements) {
   labelBalance.textContent = `${balance} EUR`;
 };
 
-const calcDisplaySummary = function (movements) {
-  const incomes = movements
+const calcDisplaySummary = function (acc) {
+  const incomes = acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `${incomes}€`;
-  const out = movements
+  const out = acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `${Math.abs(out)}`;
 
-  const interest = movements
+  const interest = acc.movements
     .filter(mov => mov > 0)
-    .map(deposit => deposit * 0.012)
+    .map(deposit => (deposit * acc.interestRate) / 100)
     .filter((int, i, arr) => int >= 1)
     .reduce((acc, int) => acc + int, 0);
   labelSumInterest.textContent = `${interest}€`;
@@ -114,25 +114,41 @@ const createUsername = function (accs) {
       .join('');
   });
 };
+createUsername(accounts);
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
 
+  //Determine if account exists and throw a true or false
   currentAccount = accounts.find(
+    //return a true or false if account is found
     acc => acc.username === inputLoginUsername.value
   );
   console.log(currentAccount);
 
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
-    console.log('LOGIN');
+    //Display UI and message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+    //Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+    //Display movements
+    displayMovements(currentAccount.movements);
+    //Display balance
+    calcDisplayBalance(currentAccount.movements);
+    //Display summary
+    calcDisplaySummary(currentAccount);
   }
 });
 
 /*----------------------------------------------------------------*/
 //Function calls For Testing
 
-displayMovements(account1.movements);
-createUsername(accounts);
-console.log(accounts);
-calcDisplayBalance(account1.movements);
-calcDisplaySummary(account1.movements);
+//displayMovements(account1.movements);
+//createUsername(accounts);
+//console.log(accounts);
+//calcDisplayBalance(account1.movements);
+//calcDisplaySummary(account1.movements);
